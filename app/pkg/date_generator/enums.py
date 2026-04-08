@@ -12,3 +12,4 @@ class DateType(StrEnum):
     MONTHLY = "monthly"
     CUSTOM_DATES = "custom_dates"
     EVEN = "even"
+    ODD = "odd"
