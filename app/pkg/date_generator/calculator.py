@@ -52,6 +52,19 @@ def _get_monthly_dates(start_date: date, config: dict) -> list[date]:
     ]
 
 def _get_custom_dates(start_date: date, config: dict) -> list[date]:
+    """
+    Генерирует следующие даты на основе пользовательских дат, указанных в конфигурации.
+    
+    Args:
+        start_date (date): Дата, с которой начинается генерация.
+        config (dict): Конфигурация, содержащая необходимые параметры для генерации дат (например, список пользовательских дат).
+
+    Raises:
+        ValueError: Если пользовательские даты меньше начальной даты.
+
+    Returns:
+        list[date]: Список сгенерированных дат.
+    """
     for date in config["custom_dates"]:
         if date < start_date:
             raise ValueError("Кастомные даты должны быть больше или равны начальной дате.")
@@ -59,9 +72,25 @@ def _get_custom_dates(start_date: date, config: dict) -> list[date]:
     return config["custom_dates"]
     
 def _get_even_dates(start_date: date, config: dict) -> list[date]:
-    # Implement logic to return even dates based on config
-    pass
+    """
+    Генерирует следующие даты на основе правила четных дней.
+    
+    Args:
+        start_date (date): Дата, с которой начинается генерация.
+        config (dict): Конфигурация, содержащая необходимые параметры для генерации дат (например, количество дат).
 
+    Returns:
+        list[date]: Список сгенерированных дат.
+    """
+    start_date = start_date if start_date.day % 2 == 0 else start_date + timedelta(days=1)
+    date_count = config.get("count", 1)    
+
+    return [
+        start_date + timedelta(days=i * 2) 
+        if (start_date + timedelta(days=i * 2)).day % 2 == 0 
+        else start_date + timedelta(days=(i * 2) + 1) for i in range(date_count)
+    ]
+    
 def _get_odd_dates(start_date: date, config: dict) -> list[date]:
     # Implement logic to return odd dates based on config
     pass
@@ -98,10 +127,10 @@ def get_next_dates(start_date: date, rule_type: RecurrenceType, config: dict) ->
 
 if __name__ == "__main__":
     # Example usage
-    start_date = date(2023, 1, 31)
+    start_date = date(2024, 2, 28)
     config = {"count": 5,
               "interval": 2,
-              "custom_dates": [date(2023, 1, 10), date(2023, 1, 20)],
+              "custom_dates": [date(2025, 1, 10), date(2025, 1, 20)],
               }  # Example configuration
     print(get_next_dates(start_date, RecurrenceType.DAILY, config))
     print("_" * 20)
