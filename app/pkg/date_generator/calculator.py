@@ -88,12 +88,29 @@ def _get_even_dates(start_date: date, config: dict) -> list[date]:
     return [
         start_date + timedelta(days=i * 2) 
         if (start_date + timedelta(days=i * 2)).day % 2 == 0 
-        else start_date + timedelta(days=(i * 2) + 1) for i in range(date_count)
+        else start_date + timedelta(days=(i * 2) + 1) 
+        for i in range(date_count)
     ]
     
 def _get_odd_dates(start_date: date, config: dict) -> list[date]:
-    # Implement logic to return odd dates based on config
-    pass
+    """
+    Генерирует следующие даты на основе правила нечетных дней.
+    
+    Args:
+        start_date (date): Дата, с которой начинается генерация.
+        config (dict): Конфигурация, содержащая необходимые параметры для генерации дат (например, количество дат).
+
+    Returns:
+        list[date]: Список сгенерированных дат.
+    """
+    start_date = start_date if start_date.day % 2 != 0 else start_date + timedelta(days=1)
+    date_count = config.get("count", 1)  
+    
+    return [
+        start_date + timedelta(days=i)
+        for i in range((1+date_count) * 2)
+        if (start_date + timedelta(days=i)).day % 2 != 0
+    ][:date_count]
 
 
 def get_next_dates(start_date: date, rule_type: RecurrenceType, config: dict) -> list[date]:
@@ -122,12 +139,12 @@ def get_next_dates(start_date: date, rule_type: RecurrenceType, config: dict) ->
     elif rule_type == RecurrenceType.ODD:
         return _get_odd_dates(start_date, config)
     else:
-        raise ValueError(f"Unsupported rule type: {rule_type}")
+        raise ValueError(f"Неподдерживаемый тип правила: {rule_type}")
 
 
 if __name__ == "__main__":
     # Example usage
-    start_date = date(2024, 2, 28)
+    start_date = date(2024, 2, 1)
     config = {"count": 5,
               "interval": 2,
               "custom_dates": [date(2025, 1, 10), date(2025, 1, 20)],
