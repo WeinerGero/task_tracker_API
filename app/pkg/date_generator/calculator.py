@@ -51,15 +51,18 @@ def _get_monthly_dates(start_date: date, config: dict) -> list[date]:
         for i in range(date_count)
     ]
 
-def _get_custom_dates(config: dict) -> list[date]:
-    # Implement logic to return custom dates based on config
-    pass
+def _get_custom_dates(start_date: date, config: dict) -> list[date]:
+    for date in config["custom_dates"]:
+        if date < start_date:
+            raise ValueError("Кастомные даты должны быть больше или равны начальной дате.")
 
-def _get_even_dates(config: dict) -> list[date]:
+    return config["custom_dates"]
+    
+def _get_even_dates(start_date: date, config: dict) -> list[date]:
     # Implement logic to return even dates based on config
     pass
 
-def _get_odd_dates(config: dict) -> list[date]:
+def _get_odd_dates(start_date: date, config: dict) -> list[date]:
     # Implement logic to return odd dates based on config
     pass
 
@@ -84,23 +87,21 @@ def get_next_dates(start_date: date, rule_type: RecurrenceType, config: dict) ->
     elif rule_type == RecurrenceType.MONTHLY:
         return _get_monthly_dates(start_date, config)
     elif rule_type == RecurrenceType.CUSTOM_DATES:
-        return _get_custom_dates(config)
+        return _get_custom_dates(start_date, config)
     elif rule_type == RecurrenceType.EVEN:
-        return _get_even_dates(config)
-        pass
+        return _get_even_dates(start_date,config)
     elif rule_type == RecurrenceType.ODD:
-        return _get_odd_dates(config)
-        pass
+        return _get_odd_dates(start_date, config)
     else:
         raise ValueError(f"Unsupported rule type: {rule_type}")
 
 
 if __name__ == "__main__":
     # Example usage
-    start_date = date(2024, 1, 31)
+    start_date = date(2023, 1, 31)
     config = {"count": 5,
               "interval": 2,
-              "custom_dates": [date(2024, 1, 10), date(2024, 1, 20)],
+              "custom_dates": [date(2023, 1, 10), date(2023, 1, 20)],
               }  # Example configuration
     print(get_next_dates(start_date, RecurrenceType.DAILY, config))
     print("_" * 20)
