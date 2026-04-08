@@ -1,15 +1,21 @@
-from datetime import date
+from datetime import date, timedelta
 from enums import DateType as RecurrenceType
 
 
 def _get_daily_dates(start_date: date, config: dict) -> list[date]:
-    next_dates = []
-    date_count = config.get("count", 0)
+    """
+    Генерирует следующие даты на основе ежедневного правила.
+    
+    Args:
+        start_date (date): Дата, с которой начинается генерация.
+        config (dict): Конфигурация, содержащая необходимые параметры для генерации дат (например, количество дат, интервалы и т.д.).
+
+    Returns:
+        list[date]: Список сгенерированных дат.
+    """
+    date_count = config.get("count", 1)
     interval = config.get("interval", 1)
-    
-    
-    # Implement logic to generate daily dates based on start_date and config
-    pass
+    return [start_date + timedelta(days=i * interval) for i in range(date_count)]
 
 def _get_monthly_dates(start_date: date, config: dict) -> list[date]:
     # Implement logic to generate monthly dates based on start_date and config
@@ -63,7 +69,8 @@ if __name__ == "__main__":
     # Example usage
     start_date = date(2024, 1, 1)
     config = {"count": 5,
-              "interval": 1
+              "interval": 2,
+              "custom_dates": [date(2024, 1, 10), date(2024, 1, 20)],
               }  # Example configuration
     print(get_next_dates(start_date, RecurrenceType.DAILY, config))
     print("_" * 20)
