@@ -1,5 +1,8 @@
-import pytest
+"""
+Тесты для функции генерации дат на основе различных конфигураций.
+"""
 from datetime import date
+import pytest
 from freezegun import freeze_time
 
 
@@ -9,6 +12,7 @@ from app.pkg.date_generator.calculator import (
 )
 
 
+# Тесты для генерации дат на основе различных конфигураций
 @freeze_time("2025-12-01")
 @pytest.mark.parametrize(
     "config_class, params, expected_dates",
@@ -95,6 +99,7 @@ from app.pkg.date_generator.calculator import (
     ]
 )
 def test_successful_date_generation(config_class, params, expected_dates):
+    """Тестирует успешную генерацию дат на основе различных конфигураций."""
     # Создаем конфигурацию для генерации дат
     config = config_class(**params)
 
@@ -106,6 +111,10 @@ def test_successful_date_generation(config_class, params, expected_dates):
     assert len(result) == len(expected_dates)
 
 def test_validation_fails_if_start_greater_than_end():
+    """
+    Тестирует, что валидация конфигурации не проходит,
+    если начальная дата больше конечной.
+    """
     with pytest.raises(ValueError, match="не может быть позже"):
         DailyConfig(
             start_date=date(2026, 5, 10),
