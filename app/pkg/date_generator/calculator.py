@@ -21,7 +21,7 @@ class DateConfig(BaseModel):
         ValueError: Если стартовая дата позже конечной даты.
     """
     type: RecurrenceType
-    count: int | None = Field(le=MAX_COUNT)
+    count: int | None = Field(default=None, le=MAX_COUNT)
     start_date: date | None = Field(default_factory=date.today)
     end_date: date | None = None
 
@@ -43,13 +43,13 @@ class DateConfig(BaseModel):
 
 class DailyConfig(DateConfig):
     """Конфигурация для генерации ежедневных дат"""
-    type: Literal["daily"]
+    type: Literal["daily"] = "daily"
     interval: int = Field(gt=0, default=1)
 
 
 class MonthlyConfig(DateConfig):
     """Конфигурация для генерации ежемесячных дат"""
-    type: Literal["monthly"]
+    type: Literal["monthly"] = "monthly"
     bymonthday: list[Annotated[int, Field(ge=1, le=31)]] = Field(default_factory=lambda: [1])
 
 
@@ -60,7 +60,7 @@ class CustomDatesConfig(BaseModel):
         ValueError: Если одна из дат в списке находится в прошлом.
 
     """
-    type: Literal["custom_dates"]
+    type: Literal["custom_dates"] = "custom_dates"
     dates: list[date] = Field(min_length=1)
 
     @model_validator(mode='after')
@@ -81,12 +81,12 @@ class CustomDatesConfig(BaseModel):
 
 class EvenConfig(DateConfig):
     """Конфигурация для генерации четных дат"""
-    type: Literal["even"]
+    type: Literal["even"] = "even"
 
 
 class OddConfig(DateConfig):
     """Конфигурация для генерации нечетных дат"""
-    type: Literal["odd"]
+    type: Literal["odd"] = "odd"
 
 # Объединенный тип для всех конфигураций генерации дат с дискриминатором по полю "type"
 RecurrenceConfig = Annotated[
