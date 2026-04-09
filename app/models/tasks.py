@@ -1,17 +1,25 @@
 """
 Модель данных для задач (Tasks) в системе управления задачами.
 """
-from datetime import date, datetime
+# pylint: disable=import-error
+
+from datetime import date
 import uuid
 
-from sqlalchemy import ForeignKey, UniqueConstraint, func
-from sqlalchemy.types import String, DateTime, Date, UUID
+from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.types import String, Date, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Metadata
+from app.models.base import Metadata
 
 
 class Task(Metadata):
+    """
+    Модель данных для задач, содержащая информацию о статусе,
+    целевой дате и связи с шаблоном задачи.
+    Каждая задача может быть связана с шаблоном задачи,
+    который определяет правила генерации дат для этой задачи.
+    """
     __tablename__ = "tasks"
     # Уникальное ограничение на сочетание template_id и target_date,
     # чтобы избежать создания нескольких задач с одинаковой датой

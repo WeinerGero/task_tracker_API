@@ -5,7 +5,7 @@ from sqlalchemy.types import String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Metadata
+from app.models.base import Metadata
 
 
 class TaskTemplate(Metadata):
