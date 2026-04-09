@@ -105,17 +105,25 @@ def _get_rrule_dates(config: RecurrenceConfig) -> list[date]:
     match config:
         # Генерация ежедневных дат
         case DailyConfig():
-            rule = rrule(
-                    freq=DAILY,
-                    dtstart=datetime.combine(config.start_date, time.min),
-                    interval=config.interval,
-                    # Если указано конечное число, используем его, иначе - None для бесконечной генерации
-                    until=datetime.combine(config.end_date, time.max)
-                    if config.end_date else None,
-                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
-                    count=min(config.count, MAX_COUNT)
-                    if config.count else MAX_COUNT
-                )
+            # Параметры для rrule:
+            # частота - DAILY,
+            # начальная дата - start_date,
+            # интервал - interval
+            kwargs = {
+                "freq": DAILY,
+                "dtstart": datetime.combine(config.start_date, time.min),
+                "interval": config.interval
+            }
+
+            # Если указано конечное число, используем его,
+            # иначе - None для бесконечной генерации
+            if config.end_date:
+                kwargs["until"] = datetime.combine(config.end_date, time.max)
+            else:
+                kwargs["count"] = config.count or MAX_COUNT
+
+            # Генерируем даты с помощью rrule
+            rule = rrule(**kwargs)
 
         # Генерация ежемесячных дат
         case MonthlyConfig():
@@ -129,17 +137,25 @@ def _get_rrule_dates(config: RecurrenceConfig) -> list[date]:
                     break
                 bymonthday.append(day)
 
-            rule = rrule(
-                    freq=MONTHLY,
-                    dtstart=datetime.combine(config.start_date, time.min),
-                    bymonthday=bymonthday,
-                    # Если указано конечное число, используем его, иначе - None для бесконечной генерации
-                    until=datetime.combine(config.end_date, time.max)
-                    if config.end_date else None,
-                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
-                    count=min(config.count, MAX_COUNT)
-                    if config.count else MAX_COUNT
-                )
+            # Параметры для rrule:
+            # частота - MONTHLY,
+            # начальная дата - start_date,
+            # дни месяца - bymonthday
+            kwargs = {
+                "freq": MONTHLY,
+                "dtstart": datetime.combine(config.start_date, time.min),
+                "bymonthday": bymonthday
+            }
+
+            # Если указано конечное число, используем его,
+            # иначе - None для бесконечной генерации
+            if config.end_date:
+                kwargs["until"] = datetime.combine(config.end_date, time.max)
+            else:
+                kwargs["count"] = config.count or MAX_COUNT
+
+            # Генерируем даты с помощью rrule
+            rule = rrule(**kwargs)
 
         # Генерация пользовательских дат
         case CustomDatesConfig():
@@ -147,31 +163,43 @@ def _get_rrule_dates(config: RecurrenceConfig) -> list[date]:
 
         # Генерация четных дат
         case EvenConfig():
-            rule = rrule(
-                    freq=DAILY,
-                    dtstart=datetime.combine(config.start_date, time.min),
-                    # Если указано конечное число, используем его, иначе - None для бесконечной генерации
-                    until=datetime.combine(config.end_date, time.max)
-                    if config.end_date else None,
-                    bymonthday=EVEN_DAYS,
-                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
-                    count=min(config.count, MAX_COUNT)
-                    if config.count else MAX_COUNT
-                )
+            # Параметры для rrule:
+            # частота - DAILY,
+            # начальная дата - start_date,
+            kwargs = {
+                "freq": DAILY,
+                "dtstart": datetime.combine(config.start_date, time.min)
+            }
+
+            # Если указано конечное число, используем его,
+            # иначе - None для бесконечной генерации
+            if config.end_date:
+                kwargs["until"] = datetime.combine(config.end_date, time.max)
+            else:
+                kwargs["count"] = config.count or MAX_COUNT
+
+            # Генерируем даты с помощью rrule, фильтруя по четным дням месяца
+            rule = rrule(**kwargs, bymonthday=EVEN_DAYS)
 
         # Генерация нечетных дат
         case OddConfig():
-            rule = rrule(
-                    freq=DAILY,
-                    dtstart=datetime.combine(config.start_date, time.min),
-                    # Если указано конечное число, используем его, иначе - None для бесконечной генерации
-                    until=datetime.combine(config.end_date, time.max)
-                    if config.end_date else None,
-                    bymonthday=ODD_DAYS,
-                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
-                    count=min(config.count, MAX_COUNT)
-                    if config.count else MAX_COUNT
-                )
+            # Параметры для rrule:
+            # частота - DAILY,
+            # начальная дата - start_date
+            kwargs = {
+                "freq": DAILY,
+                "dtstart": datetime.combine(config.start_date, time.min)
+            }
+
+            # Если указано конечное число, используем его,
+            # иначе - None для бесконечной генерации
+            if config.end_date:
+                kwargs["until"] = datetime.combine(config.end_date, time.max)
+            else:
+                kwargs["count"] = config.count or MAX_COUNT
+
+            # Генерируем даты с помощью rrule, фильтруя по нечетным дням месяца
+            rule = rrule(**kwargs, bymonthday=ODD_DAYS)
 
         # Если тип конфигурации неизвестен, выбрасываем исключение
         case _:

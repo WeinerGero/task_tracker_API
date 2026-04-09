@@ -1,5 +1,7 @@
 import pytest
 from datetime import date
+from freezegun import freeze_time
+
 
 from app.pkg.date_generator.calculator import (
     DailyConfig, MonthlyConfig, CustomDatesConfig, EvenConfig, OddConfig,
@@ -7,6 +9,7 @@ from app.pkg.date_generator.calculator import (
 )
 
 
+@freeze_time("2025-12-01")
 @pytest.mark.parametrize(
     "config_class, params, expected_dates",
     [
