@@ -1,6 +1,8 @@
 """
 Модуль, содержащий базовый класс для моделей SQLAlchemy.
 """
+# pylint: disable=not-callable
+
 from datetime import datetime
 import uuid
 
@@ -10,6 +12,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
+    """
+    Базовый класс для всех моделей SQLAlchemy,
+    содержащий общие поля и конфигурацию.
+    """
     # Уникальный идентификатор для каждой записи, генерируемый автоматически
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -32,6 +38,14 @@ class Base(DeclarativeBase):
 
 
 class Metadata(Base):
+    """
+    Базовый класс для моделей, содержащих метаданные задач,
+    таких как шаблоны и задачи.
+
+    __abstract__ = True означает, что этот класс не будет создавать свою
+    собственную таблицу в базе данных, а будет использоваться только для
+    наследования общих полей и конфигурации.
+    """
     __abstract__ = True
     # Название задачи
     title: Mapped[str] = mapped_column(String(255), nullable=False)
