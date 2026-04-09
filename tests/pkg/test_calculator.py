@@ -5,7 +5,6 @@ from datetime import date
 import pytest
 from freezegun import freeze_time
 
-
 from app.pkg.date_generator.calculator import (
     DailyConfig, MonthlyConfig, CustomDatesConfig, EvenConfig, OddConfig,
      _get_rrule_dates
