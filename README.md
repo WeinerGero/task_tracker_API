@@ -1,6 +1,8 @@
 # task_tracker_API
 API трекера задач для МИС
 
+Если порт 5432 уже занят местным сервисом PostgreSQL, то сменить входящий порт докера БД с 5432 на 5433 и в alembic.ini поменять строку
+sqlalchemy.url = postgresql+psycopg://postgres:postgres@127.0.0.1:5433/taskservice
 
 дата начала
 тип повторения

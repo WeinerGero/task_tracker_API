@@ -1,14 +1,14 @@
 """
 Модуль, содержащий модели данных для шаблонов задач.
 """
-from sqlalchemy import String
+from sqlalchemy.types import String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .base import Metadata
 
 
-class TaskTemplate(Base):
+class TaskTemplate(Metadata):
     __tablename__ = "task_templates"
 
     # Тип правила генерации дат, например:
@@ -17,3 +17,9 @@ class TaskTemplate(Base):
 
     # Конфигурация для генерации дат, хранящаяся в формате JSON
     rule_config: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    # Отношение к задачам, которые были сгенерированы на основе этого шаблона
+    tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        back_populates="template",
+        passive_deletes=True
+    )
