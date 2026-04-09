@@ -12,14 +12,8 @@ from enums import DateType as RecurrenceType
 class DateConfig(BaseModel):
     """Базовая конфигурация для генерации дат.
 
-    Args:
-        BaseModel (_type_): Базовый класс для моделей данных в Pydantic.
-
     Raises:
         ValueError: Если стартовая дата позже конечной даты.
-
-    Returns:
-        _type_: Проверенная конфигурация для генерации дат.
     """
     type: RecurrenceType
     count: int | None = Field(le=MAX_COUNT)
@@ -43,21 +37,13 @@ class DateConfig(BaseModel):
     
     
 class DailyConfig(DateConfig):
-    """Конфигурация для генерации ежедневных дат.
-    
-    Args:
-        DateConfig (_type_): Базовая конфигурация для генерации дат.
-    """
+    """Конфигурация для генерации ежедневных дат"""
     type: Literal["daily"]
     interval: int = Field(gt=0, default=1)
     
     
 class MonthlyConfig(DateConfig):
-    """Конфигурация для генерации ежемесячных дат.
-
-    Args:
-        DateConfig (_type_): Базовая конфигурация для генерации дат.
-    """
+    """Конфигурация для генерации ежемесячных дат"""
     type: Literal["monthly"]
     bymonthday: list[Annotated[int, Field(ge=1, le=31)]] = Field(default_factory=lambda: [1])
     
@@ -65,14 +51,9 @@ class MonthlyConfig(DateConfig):
 class CustomDatesConfig(BaseModel):
     """Конфигурация для генерации пользовательских дат.
 
-    Args:
-        BaseModel (_type_): Базовый класс для моделей данных в Pydantic.
-
     Raises:
         ValueError: Если одна из дат в списке находится в прошлом.
 
-    Returns:
-        _type_: Проверенная конфигурация для генерации пользовательских дат.
     """
     type: Literal["custom_dates"]
     dates: list[date] = Field(min_length=1)
@@ -94,20 +75,12 @@ class CustomDatesConfig(BaseModel):
     
     
 class EvenConfig(DateConfig):
-    """Конфигурация для генерации четных дат.
-
-    Args:
-        DateConfig (_type_): Базовая конфигурация для генерации дат.
-    """
+    """Конфигурация для генерации четных дат"""
     type: Literal["even"]
     
 
 class OddConfig(DateConfig):
-    """Конфигурация для генерации нечетных дат.
-
-    Args:
-        DateConfig (_type_): Базовая конфигурация для генерации дат.
-    """
+    """Конфигурация для генерации нечетных дат"""
     type: Literal["odd"]
     
 # Объединенный тип для всех конфигураций генерации дат с дискриминатором по полю "type"
@@ -117,11 +90,8 @@ RecurrenceConfig = Annotated[
 ]
 
 
-def _get_rrule_dates(config: DateConfig) -> list[date]:
+def _get_rrule_dates(config: RecurrenceConfig) -> list[date]:
     """Генерирует даты в зависимости от типа конфигурации.
-
-    Args:
-        config (DateConfig): Конфигурация для генерации дат.
 
     Returns:
         list[date]: Список сгенерированных дат.
@@ -137,21 +107,33 @@ def _get_rrule_dates(config: DateConfig) -> list[date]:
                     # Если указано конечное число, используем его, иначе - None для бесконечной генерации
                     until=datetime.combine(config.end_date, time.max) 
                     if config.end_date else None,
-                    count=config.count or MAX_COUNT
+                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
+                    count=min(config.count, MAX_COUNT)
+                    if config.count else MAX_COUNT
                 )
             
         # Генерация ежемесячных дат
         case MonthlyConfig():
+            # Если указаны дни месяца, фильтруем их, чтобы исключить некорректные значения (29-31), так как не все месяцы имеют эти дни
+            bymonthday = []
+            for day in config.bymonthday:
+                if day in range(29, 32):
+                    bymonthday.append(-1)
+                    break
+                bymonthday.append(day)
+            
             rule = rrule(
                     freq=MONTHLY,
                     dtstart=datetime.combine(config.start_date, time.min),
-                    bymonthday=config.bymonthday,
+                    bymonthday=bymonthday,
                     # Если указано конечное число, используем его, иначе - None для бесконечной генерации
                     until=datetime.combine(config.end_date, time.max)
                     if config.end_date else None,
-                    count=config.count or MAX_COUNT
+                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
+                    count=min(config.count, MAX_COUNT)
+                    if config.count else MAX_COUNT
                 )
-            
+        
         # Генерация пользовательских дат
         case CustomDatesConfig():
             return config.dates 
@@ -165,7 +147,9 @@ def _get_rrule_dates(config: DateConfig) -> list[date]:
                     until=datetime.combine(config.end_date, time.max)
                     if config.end_date else None,
                     bymonthday=EVEN_DAYS,
-                    count=config.count or MAX_COUNT
+                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
+                    count=min(config.count, MAX_COUNT)
+                    if config.count else MAX_COUNT
                 )
             
         # Генерация нечетных дат
@@ -177,7 +161,9 @@ def _get_rrule_dates(config: DateConfig) -> list[date]:
                     until=datetime.combine(config.end_date, time.max)
                     if config.end_date else None,
                     bymonthday=ODD_DAYS,
-                    count=config.count or MAX_COUNT
+                    # Ограничиваем количество генерируемых дат, чтобы избежать бесконечных циклов
+                    count=min(config.count, MAX_COUNT)
+                    if config.count else MAX_COUNT
                 )
             
         # Если тип конфигурации неизвестен, выбрасываем исключение
