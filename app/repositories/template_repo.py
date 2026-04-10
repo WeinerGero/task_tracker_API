@@ -5,6 +5,8 @@
 Он наследуется от базового репозитория, который обеспечивает
 общие операции для всех моделей.
 """
+# pylint: disable=import-error
+
 from app.models.templates import TaskTemplate
 from app.repositories.base import BaseRepository
 

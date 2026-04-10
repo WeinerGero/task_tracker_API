@@ -2,6 +2,8 @@
 Репозиторий для работы с задачами.
 Содержит методы для создания, получения и обновления задач.
 """
+# pylint: disable=import-error
+
 from sqlalchemy import insert
 
 from app.repositories.base import BaseRepository
