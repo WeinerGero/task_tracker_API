@@ -25,6 +25,7 @@ class TaskTemplate(Metadata):
 
     # Конфигурация для генерации дат, хранящаяся в формате JSON
     rule_config: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
     # Отношение к задачам, которые были сгенерированы на основе этого шаблона
     tasks: Mapped[list["Task"]] = relationship(
         "Task",

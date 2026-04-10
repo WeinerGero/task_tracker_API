@@ -50,6 +50,7 @@ class Task(Metadata):
         nullable=False,
         index=True,
     )
+
     # Отношение к шаблону задачи
     template: Mapped["TaskTemplate"] = relationship(
         "TaskTemplate",
