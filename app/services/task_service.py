@@ -3,9 +3,12 @@
 повторяющихся задач на основе шаблонов.
 """
 # pylint: disable=import-error
+from datetime import date
+from typing import Union
 
 from app.services.exceptions import ServiceError
 from app.models.templates import TaskTemplate
+from app.models.tasks import Task
 from app.pkg.date_generator.calculator import RecurrenceConfig, calculate_dates
 
 
@@ -62,3 +65,23 @@ class TaskService:
 
             # Сохраняем задачи в базе данных
             await self.task_repository.bulk_create(tasks)
+
+        return Union[TaskTemplate, Task]
+
+    async def create_simple_task(
+            self,
+            title: str,
+            description: str | None,
+            target_date: date | None
+        ):
+        """Создает простую задачу без повторения."""
+        task = {
+            "title": title,
+            "description": description,
+            "status": "new",
+            "template_id": None,
+            "target_date": target_date if target_date else date.today()
+        }
+        await self.task_repository.bulk_create([task])
+
+        return Union[TaskTemplate, Task]
