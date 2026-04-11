@@ -1,7 +1,10 @@
 import pytest
 from datetime import date, timedelta
 
+from sqlalchemy import select
+
 from app.models.tasks import Task
+from app.services.task_service import TaskTemplate
 from app.schemas.enums import TaskStatus
 
 
@@ -54,3 +57,31 @@ async def test_get_tasks_filtering_by_date(client, db_session):
     # Проверяем, что фильтр сработал
     assert len(data) == 1
     assert data[0]["target_date"] == today.isoformat()
+
+@pytest.mark.asyncio
+async def test_delete_template_success(client, db_session):
+    # 1. Arrange: Создаем данные
+    template = TaskTemplate(title="To be deleted", rule_type="daily", rule_config={})
+    db_session.add(template)
+    await db_session.flush() # Получаем ID
+
+    # Добавляем связанные задачи
+    task = Task(title="Task", target_date=date.today(), template_id=template.id, status="new")
+    db_session.add(task)
+    await db_session.commit()
+
+    # 2. Act: Удаляем
+    response = await client.delete(f"/api/v1/tasks/templates/{template.id}")
+
+    # 3. Assert
+    assert response.status_code == 204
+
+    # Проверяем отсутствие в базе
+    res_template = await db_session.get(TaskTemplate, template.id)
+    assert res_template is None
+
+    # Проверяем отсутствие задач (каскад)
+    res_tasks = await db_session.execute(
+        select(Task).where(Task.template_id == template.id)
+    )
+    assert len(res_tasks.scalars().all()) == 0

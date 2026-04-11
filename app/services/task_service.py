@@ -3,12 +3,13 @@
 повторяющихся задач на основе шаблонов.
 """
 # pylint: disable=import-error
+from uuid import UUID
 from datetime import date
-from typing import Union
 
 from app.services.exceptions import ServiceError
 from app.models.templates import TaskTemplate
 from app.models.tasks import Task
+from app.schemas.enums import TaskStatus
 from app.pkg.date_generator.calculator import RecurrenceConfig, calculate_dates
 
 
@@ -99,3 +100,9 @@ class TaskService:
             from_date=from_date,
             to_date=to_date
         )
+
+    async def delete_template(self, template_id: UUID) -> None:
+        async with self.template_repository.session.begin():
+            deleted = await self.template_repository.delete_by_id(template_id)
+            if not deleted:
+                raise ServiceError(f"Шаблон с ID {template_id} не найден")
