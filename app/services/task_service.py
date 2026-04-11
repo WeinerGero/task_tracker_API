@@ -2,6 +2,8 @@
 Сервис для управления задачами, включая создание
 повторяющихся задач на основе шаблонов.
 """
+# pylint: disable=import-error
+
 from app.services.exceptions import ServiceError
 from app.models.templates import TaskTemplate
 from app.pkg.date_generator.calculator import RecurrenceConfig, calculate_dates
