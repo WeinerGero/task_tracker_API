@@ -6,8 +6,8 @@
 from datetime import date
 import uuid
 
-from sqlalchemy import ForeignKey, UniqueConstraint
-from sqlalchemy.types import String, Date, UUID
+from sqlalchemy import ForeignKey, UniqueConstraint, BigInteger
+from sqlalchemy.types import String, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Metadata
@@ -38,7 +38,7 @@ class Task(Metadata):
     # Внешний ключ на шаблон задачи,
     # может быть null для задач без шаблона
     template_id: Mapped[uuid.UUID] = mapped_column(
-        UUID,
+        BigInteger,
         ForeignKey("task_templates.id", ondelete="CASCADE"),
         nullable=True,
         index=True

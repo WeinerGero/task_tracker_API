@@ -1,7 +1,6 @@
 """
 
 """
-import uuid
 from datetime import date, datetime
 from typing import Annotated
 
@@ -27,8 +26,8 @@ class TaskCreateSchema(BaseModel):
 
 
 class TaskReadSchema(BaseModel):
-    id: uuid.UUID
-    template_id: uuid.UUID | None
+    id: int
+    template_id: int | None
     title: Annotated[str, Field(max_length=255)]
     description: Annotated[str, Field(max_length=1024)] | None = None
     status: TaskStatus

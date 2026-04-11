@@ -1,7 +1,6 @@
 """
 
 """
-from uuid import UUID
 from datetime import date
 
 from fastapi import APIRouter, status, Depends, Query
@@ -46,7 +45,7 @@ async def get_tasks(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_task_template(
-    template_id: UUID,
+    template_id: int,
     service: TaskService = Depends(get_task_service)
 ):
     """Удаляет шаблон и все связанные задачи (каскадно)."""

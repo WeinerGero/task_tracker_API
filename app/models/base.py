@@ -6,8 +6,8 @@
 from datetime import datetime
 import uuid
 
-from sqlalchemy import func
-from sqlalchemy.types import String, DateTime, UUID
+from sqlalchemy import func, BigInteger
+from sqlalchemy.types import String, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -18,9 +18,9 @@ class Base(DeclarativeBase):
     """
     # Уникальный идентификатор для каждой записи, генерируемый автоматически
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
+        BigInteger,
         primary_key=True,
-        server_default=func.gen_random_uuid()
+        autoincrement=True
     )
     # Дата и время создания записи
     created_at: Mapped[datetime] = mapped_column(

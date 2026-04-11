@@ -6,9 +6,7 @@
 общие операции для всех моделей.
 """
 # pylint: disable=import-error
-from uuid import UUID
-
-from sqlalchemy import delete
+from sqlalchemy import BigInteger, delete
 
 from app.models.templates import TaskTemplate
 from app.repositories.base import BaseRepository
@@ -19,7 +17,7 @@ class TemplateRepository(BaseRepository[TaskTemplate]):
     def __init__(self, session):
         super().__init__(TaskTemplate, session)
 
-    async def delete_by_id(self, entity_id: UUID) -> bool:
+    async def delete_by_id(self, entity_id: BigInteger) -> bool:
         stmt = delete(self.model).where(self.model.id == entity_id)
         result = await self.session.execute(stmt)
         return result.rowcount > 0
