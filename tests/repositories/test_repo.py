@@ -8,7 +8,7 @@
 import pytest
 from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import select, insert
 
 from app.models.templates import TaskTemplate
 from app.models.tasks import Task
@@ -76,3 +76,22 @@ async def test_bulk_create_empty_list_does_not_crash(db_session):
     result = await db_session.execute(select(Task))
     tasks_in_db = result.fetchall()
     assert len(tasks_in_db) == 0
+
+@pytest.mark.asyncio
+async def test_get_all_filtering(db_session):
+    repo = TaskRepository(db_session)
+    # Arrange: создаем задачи на разные даты
+    dates = [date(2025, 1, 1), date(2025, 1, 2), date(2025, 1, 3)]
+    for d in dates:
+        await repo.session.execute(insert(Task).values(
+            title=f"Task {d}",
+            target_date=d,
+            status="new"
+        ))
+
+    # Act: фильтруем только за 2-е число
+    tasks = await repo.get_all(from_date=date(2025, 1, 2), to_date=date(2025, 1, 2))
+
+    # Assert
+    assert len(tasks) == 1
+    assert tasks[0].target_date == date(2025, 1, 2)

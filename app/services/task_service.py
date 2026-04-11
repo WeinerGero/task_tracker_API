@@ -85,3 +85,20 @@ class TaskService:
         await self.task_repository.bulk_create([task])
 
         return Union[TaskTemplate, Task]
+
+    async def get_tasks(
+        self,
+        from_date: date | None = None,
+        to_date: date | None = None
+        ) -> list[Task]:
+        # ограничение диапазона (защита от DoS)
+        if from_date and to_date:
+            delta = to_date - from_date
+            if delta.days > 366:
+                raise ServiceError("Нельзя запрашивать задачи более чем за один год")
+
+        # Вызов репозитория
+        return await self.task_repository.get_all(
+            from_date=from_date,
+            to_date=to_date
+        )

@@ -6,6 +6,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 from datetime import date
 
+from app.services.task_service import TaskService
+from app.services.exceptions import ServiceError
+
 
 @patch("app.services.task_service.calculate_dates")
 @pytest.mark.asyncio
@@ -60,3 +63,14 @@ async def test_create_recurring_task_logic(mock_calculate):
     for t in tasks_to_insert:
         assert t["template_id"] == fake_template_id
         assert t["title"] == "Test Title"
+
+@pytest.mark.asyncio
+async def test_get_tasks_limit_violation():
+    service = TaskService(AsyncMock(), AsyncMock())
+
+    # Пытаемся запросить данные за 2 года
+    with pytest.raises(ServiceError, match="Нельзя запрашивать задачи более чем за один год"):
+        await service.get_tasks(
+            from_date=date(2025, 1, 1),
+            to_date=date(2027, 1, 1)
+        )

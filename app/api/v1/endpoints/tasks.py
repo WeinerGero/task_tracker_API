@@ -1,10 +1,12 @@
 """
 
 """
-from fastapi import APIRouter, Depends, status
+from datetime import date
+
+from fastapi import APIRouter, status, Depends, Query
 
 from app.services.task_service import TaskService
-from app.schemas.task import TaskCreateSchema
+from app.schemas.task import TaskCreateSchema, TaskReadSchema
 from app.api.dependencies import get_task_service
 
 
@@ -30,3 +32,11 @@ async def create_task(
             target_date=payload.target_date
         )
 
+@router.get("/", response_model=list[TaskReadSchema])
+async def get_tasks(
+    from_date: date | None = Query(None, description="Начало периода"),
+    to_date: date | None = Query(None, description="Конец периода"),
+    service: TaskService = Depends(get_task_service)
+    ):
+
+    return await service.get_tasks(from_date=from_date, to_date=to_date)
