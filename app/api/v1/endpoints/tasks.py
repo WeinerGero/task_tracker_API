@@ -16,21 +16,20 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 async def create_task(
     payload: TaskCreateSchema,
     service: TaskService = Depends(get_task_service)
-    ):
+):
     if payload.recurrence:
-        # Передаем всё: и метаданные задачи, и конфиг периодичности
+        # Передаем config=payload.recurrence
         return await service.create_recurring_task(
             title=payload.title,
             description=payload.description,
             config=payload.recurrence
         )
-    else:
-        # Передаем только то, что нужно для одиночной задачи
-        return await service.create_simple_task(
-            title=payload.title,
-            description=payload.description,
-            target_date=payload.target_date
-        )
+
+    return await service.create_simple_task(
+        title=payload.title,
+        description=payload.description,
+        target_date=payload.target_date
+    )
 
 @router.get("/", response_model=list[TaskReadSchema])
 async def get_tasks(

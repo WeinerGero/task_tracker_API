@@ -2,12 +2,13 @@
 
 """
 from dotenv import load_dotenv
+load_dotenv()
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from .config import Settings
+from .config import settings
 
 
-engine = create_async_engine(Settings.DATABASE_URL, echo=Settings.DB_ECHO)
+engine = create_async_engine(settings.DATABASE_URL, echo=settings.DB_ECHO)
 
 async_session_maker = async_sessionmaker(
     engine,

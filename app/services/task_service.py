@@ -30,13 +30,11 @@ class TaskService:
         """Создает повторяющиеся задачи на основе шаблона и конфигурации."""
         # Преобразуем конфигурацию в формат,
         # который можно сохранить в базе данных
-        rule_config = config.rule_config.model_dump(mode='json')
+        rule_config = config.model_dump(mode='json')
 
         # Генерируем даты для задач на основе конфигурации
-        dates = calculate_dates(
-            config.type,
-            rule_config
-        )
+        dates = calculate_dates(config)
+
 
         # Если генерация дат не удалась, выбрасываем исключение
         if not dates:
@@ -66,7 +64,7 @@ class TaskService:
             # Сохраняем задачи в базе данных
             await self.task_repository.bulk_create(tasks)
 
-        return Union[TaskTemplate, Task]
+        return template
 
     async def create_simple_task(
             self,
@@ -75,16 +73,15 @@ class TaskService:
             target_date: date | None
         ):
         """Создает простую задачу без повторения."""
-        task = {
-            "title": title,
-            "description": description,
-            "status": "new",
-            "template_id": None,
-            "target_date": target_date if target_date else date.today()
-        }
-        await self.task_repository.bulk_create([task])
+        task_obj = Task(
+            title=title,
+            description=description,
+            status=TaskStatus.NEW,
+            target_date=target_date or date.today()
+        )
 
-        return Union[TaskTemplate, Task]
+        return await self.task_repository.create(task_obj)
+
 
     async def get_tasks(
         self,
