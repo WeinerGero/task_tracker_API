@@ -206,3 +206,14 @@ def _get_rrule_dates(config: RecurrenceConfig) -> list[date]:
             raise ValueError("Unknown config type")
 
     return [dt.date() for dt in rule]
+
+def calculate_dates(config: RecurrenceConfig) -> list[date]:
+    """Публичная функция для генерации дат на основе конфигурации.
+
+    Args:
+        config (RecurrenceConfig): Конфигурация для генерации дат.
+
+    Returns:
+        list[date]: Список сгенерированных дат.
+    """
+    return _get_rrule_dates(config)
