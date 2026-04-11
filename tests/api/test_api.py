@@ -85,3 +85,93 @@ async def test_delete_template_success(client, db_session):
         select(Task).where(Task.template_id == template.id)
     )
     assert len(res_tasks.scalars().all()) == 0
+
+@pytest.mark.asyncio
+async def test_get_single_task_success(client, db_session):
+    # 1. Arrange
+    task = Task(
+        title="Test Get Task",
+        description="Desc",
+        status=TaskStatus.NEW,
+        target_date=date.today()
+    )
+    db_session.add(task)
+    await db_session.commit()
+    await db_session.refresh(task) # Получаем сгенерированный ID
+
+    # 2. Act
+    response = await client.get(f"/api/v1/tasks/{task.id}")
+
+    # 3. Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == task.id
+    assert data["title"] == "Test Get Task"
+
+@pytest.mark.asyncio
+async def test_update_task_success(client, db_session):
+    # 1. Arrange
+    task = Task(
+        title="Old Title",
+        description="Old Desc",
+        status=TaskStatus.NEW,
+        target_date=date.today()
+    )
+    db_session.add(task)
+    await db_session.commit()
+    await db_session.refresh(task)
+    await db_session.commit()
+
+    # 2. Act: Обновляем только статус и описание
+    payload = {
+        "description": "New Desc",
+        "status": "done"
+    }
+    response = await client.put(f"/api/v1/tasks/{task.id}", json=payload)
+
+    # 3. Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "done"
+    assert data["description"] == "New Desc"
+    assert data["title"] == "Old Title" # Название не должно было измениться
+
+    # Убеждаемся, что в базе данные тоже обновились
+    await db_session.refresh(task)
+    assert task.status == TaskStatus.DONE
+
+@pytest.mark.asyncio
+async def test_delete_single_task_success(client, db_session):
+    # 1. Arrange
+    task = Task(
+        title="Task to delete",
+        status=TaskStatus.NEW,
+        target_date=date.today()
+    )
+    db_session.add(task)
+    await db_session.commit()
+    await db_session.refresh(task)
+    await db_session.commit()
+
+    # 2. Act
+    response = await client.delete(f"/api/v1/tasks/{task.id}")
+
+    # 3. Assert
+    assert response.status_code == 204 # 204 No Content
+
+    # Проверяем, что задача реально исчезла из БД
+    deleted_task = await db_session.get(Task, task.id)
+    assert deleted_task is None
+
+@pytest.mark.asyncio
+async def test_get_task_not_found(client):
+    # Act: Запрашиваем несуществующий ID (например, 999999)
+    response = await client.get("/api/v1/tasks/999999")
+
+    # Assert: Ожидаем ошибку от нашего exception_handler
+    assert response.status_code == 400 # Или 404, смотря как ты настроил ServiceError
+    data = response.json()
+    assert "detail" in data # Проверяем, что вернулась структура ошибки
+
+
+

@@ -36,3 +36,10 @@ class TaskReadSchema(BaseModel):
     target_date: date
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TaskUpdateSchema(BaseModel):
+    title: Annotated[str, Field(max_length=255)] | None = None
+    description: Annotated[str, Field(max_length=1024)] | None = None
+    status: TaskStatus | None = None
+    target_date: date | None = None

@@ -10,6 +10,7 @@ from app.services.exceptions import ServiceError
 from app.models.templates import TaskTemplate
 from app.models.tasks import Task
 from app.schemas.enums import TaskStatus
+from app.schemas.task import TaskUpdateSchema
 from app.pkg.date_generator.calculator import RecurrenceConfig, calculate_dates
 
 
@@ -106,3 +107,35 @@ class TaskService:
             deleted = await self.template_repository.delete_by_id(template_id)
             if not deleted:
                 raise ServiceError(f"Шаблон с ID {template_id} не найден")
+
+    async def update_task(
+        self,
+        item_id: int,
+        payload: TaskUpdateSchema
+    ):
+        update_data = payload.model_dump(exclude_unset=True)
+        if not update_data:
+            raise ServiceError("Нет данных для обновления")
+
+        async with self.task_repository.session.begin():
+            # Логика обновления и проверки существования
+            updated_item = await self.task_repository.update_by_id(
+                item_id,
+                update_data
+            )
+            if not updated_item:
+                raise ServiceError("Запись не найдена")
+            return updated_item
+
+    async def get_task(self, task_id: int):
+        task = await self.task_repository.get_by_id(task_id)
+        if not task:
+            # Это критически важно для теста not_found
+            raise ServiceError(f"Задача с ID {task_id} не найдена")
+        return task
+
+    async def delete_task(self, task_id: int):
+        async with self.task_repository.session.begin():
+            deleted = await self.task_repository.delete_by_id(task_id)
+            if not deleted:
+                raise ServiceError(f"Задача с ID {task_id} не найдена")

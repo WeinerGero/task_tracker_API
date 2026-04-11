@@ -6,7 +6,7 @@ from datetime import date
 from fastapi import APIRouter, status, Depends, Query
 
 from app.services.task_service import TaskService
-from app.schemas.task import TaskCreateSchema, TaskReadSchema
+from app.schemas.task import TaskCreateSchema, TaskReadSchema, TaskUpdateSchema
 from app.api.dependencies import get_task_service
 
 
@@ -50,3 +50,25 @@ async def delete_task_template(
 ):
     """Удаляет шаблон и все связанные задачи (каскадно)."""
     await service.delete_template(template_id)
+
+@router.get("/{task_id}", response_model=TaskReadSchema)
+async def get_task(
+    task_id: int,
+    service: TaskService = Depends(get_task_service)
+):
+    return await service.get_task(task_id)
+
+@router.put("/{task_id}", response_model=TaskReadSchema)
+async def update_task(
+    task_id: int,
+    payload: TaskUpdateSchema,
+    service: TaskService = Depends(get_task_service)
+):
+    return await service.update_task(task_id, payload)
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(
+    task_id: int,
+    service: TaskService = Depends(get_task_service)
+):
+    await service.delete_task(task_id)

@@ -5,7 +5,7 @@
 # pylint: disable=import-error
 from datetime import date
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,3 +43,25 @@ class TaskRepository(BaseRepository[Task]):
         result = await self.session.execute(query)
         return result.scalars().all()
 
+    async def update_by_id(
+        self,
+        task_id: int,
+        update_data: dict
+    ) -> Task | None:
+        # Формируем запрос UPDATE
+        stmt = (
+            update(self.model)
+            .where(self.model.id == task_id)
+            .values(**update_data)
+            .returning(self.model) # Просим БД вернуть обновленный объект
+        )
+
+        # Выполняем запрос
+        result = await self.session.execute(stmt)
+
+        # Возвращаем первый найденный объект или None
+        return result.scalar_one_or_none()
+
+    async def get_by_id(self, task_id: int) -> Task | None:
+        # Получить объект по первичному ключу в SQLAlchemy
+        return await self.session.get(self.model, task_id)

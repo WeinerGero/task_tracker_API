@@ -8,6 +8,7 @@
 """
 from typing import TypeVar, Generic
 
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar("T")
@@ -25,3 +26,8 @@ class BaseRepository(Generic[T]):
         self.session.add(model)     # Добавляем модель в сессию
         await self.session.flush()  # Сохраняем изменения в базе данных,
         return model                # чтобы получить ID новой записи
+
+    async def delete_by_id(self, entity_id: int) -> bool:
+        stmt = delete(self.model).where(self.model.id == entity_id)
+        result = await self.session.execute(stmt)
+        return result.rowcount > 0
