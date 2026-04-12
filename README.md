@@ -21,16 +21,27 @@
 * `DELETE /api/v1/tasks/{task_id}` — удалить только одну задачу (разовую или одну из серии).
 
 ## Подключение к БД
-Подставьте нужные значения в DB_USER, DB_PASSWORD, DB_IP, DB_PORT в variables
+Подставьте нужные значения user, pass, ip, port, db_name и добваьте DATABASE_URL в variables
 ```bash
-DATABASE_URL = postgresql+psycopg://DB_USER:DB_PASSWORD@DB_IP:DB_PORT/DB_NAME
+DATABASE_URL = postgresql+psycopg://user:pass@ip:port/bd_name
 ```
 
 ## Запуск
+
+**Шаг 1.** Базу данных берем из оригинального задания. Сначала поднимите его контейнеры:
+```bash
+git clone https://github.com/medods/test-task-for-junior-backend-developer
+cd test-task-for-junior-backend-developer
+docker compose up -d
+```
+
+**Шаг 2.** Запускаем наш проект (он сам найдет сеть базы и накатит миграции):
 ```bash
 docker-compose up --build
 ```
-Миграции накатятся сами.
+
+**Swagger (Документация API):**
+После запуска всё можно удобно потыкать в браузере: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ## Тесты
 ```bash
