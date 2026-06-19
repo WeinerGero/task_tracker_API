@@ -1,6 +1,63 @@
 # Task Tracker API
 
+<div align="left">
+
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![JSONB](https://img.shields.io/badge/JSONB-PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/docs/current/datatype-json.html)
+[![rrule](https://img.shields.io/badge/rrule-Recurring%20schedules-7C3AED?style=flat-square)](#работа-с-повторяющимися-задачами)
+[![Swagger](https://img.shields.io/badge/Swagger-API%20docs-85EA2D?style=flat-square&logo=swagger&logoColor=black)](http://localhost:8000/docs)
+[![pytest](https://img.shields.io/badge/pytest-Tests-0A9EDC?style=flat-square&logo=pytest&logoColor=white)](#тесты)
+
+</div>
+
 Микросервис для ведения расписания врачей. Сервис поддерживает разовые задачи и повторяющиеся серии, позволяет управлять отдельными экземплярами задач и получать расписание за выбранный период.
+
+---
+
+## Системные требования
+
+<table>
+<tr>
+<td width="33%" align="center">
+
+### 🐳 Docker
+
+Docker Engine и Docker Compose для запуска базы данных и сервиса в контейнерах.
+
+</td>
+<td width="33%" align="center">
+
+### 🐘 PostgreSQL
+
+База данных запускается из контейнеров репозитория с исходной конфигурацией.
+
+</td>
+<td width="33%" align="center">
+
+### 🌐 Порт 8000
+
+После запуска Swagger UI доступен по адресу `http://localhost:8000/docs`.
+
+</td>
+</tr>
+</table>
+
+Для клонирования репозитория с базой данных также потребуется `git`.
+
+---
+
+## Технологии
+
+| Задача | Используемое решение |
+|---|---|
+| Запуск сервиса | Docker, Docker Compose |
+| Хранение данных | PostgreSQL |
+| Правила повторения | `rrule` |
+| Гибкая конфигурация серий | `JSONB` |
+| Документация API | Swagger UI |
+| Проверка работы | `pytest` |
 
 ---
 
